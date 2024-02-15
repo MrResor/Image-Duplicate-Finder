@@ -1,25 +1,44 @@
-from __init__ import Qtw
+from __init__ import Qtw, Qtg, Qtc
+
+class ChkBxFileDialog(Qtw.QFileDialog):
+    def __init__(self, chkBxTitle="", filter="") -> None:
+        super().__init__(filter=filter)
+        self.setOption(Qtw.QFileDialog.DontUseNativeDialog)
+        self.setFileMode(Qtw.QFileDialog.FileMode.Directory)
+        
+        # self.selectNameFilter("*.txt")
+        self.chkBx = Qtw.QCheckBox(chkBxTitle)
+        self.layout().addWidget(self.chkBx)
+        lbl = Qtw.QLabel("Search directories")
+        self.layout().addWidget(lbl)
+
+    def run(self):
+        return self.exec_()
+
+class Work_mode(Qtw.QMessageBox):
+    def __init__(self) -> None:
+        super().__init__()
+        self.setWindowTitle("Select working mode.")
+        self.setIcon(Qtw.QMessageBox.Question)
+        self.setText(
+            "Would you like to load existing database created by this program?"
+        )
+        self.setStandardButtons(Qtw.QMessageBox.Yes | Qtw.QMessageBox.No)
+    
+    def run(self) -> int:
+        return self.exec_()
 
 
-def work_mode() -> int:
-    msg = Qtw.QMessageBox()
-    msg.setWindowTitle("Select working mode.")
-    msg.setIcon(Qtw.QMessageBox.Question)
-    msg.setText(
-        "Would you like to load existing database created by this program?"
-    )
-    msg.setStandardButtons(Qtw.QMessageBox.Yes | Qtw.QMessageBox.No)
-    x = msg.exec_()
-    return x
-
-
-def error_message(text) -> None:
-    msg = Qtw.QMessageBox()
-    msg.setWindowTitle("Error")
-    msg.setIcon(Qtw.QMessageBox.Critical)
-    msg.setText(text)
-    msg.setStandardButtons(Qtw.QMessageBox.Ok)
-    msg.exec_()
+class Error_message(Qtw.QMessageBox):
+    def __init__(self, text: str) -> None:
+        super().__init__()
+        self.setWindowTitle("Error")
+        self.setIcon(Qtw.QMessageBox.Critical)
+        self.setText(text)
+        self.setStandardButtons(Qtw.QMessageBox.Ok)
+    
+    def run(self) -> int:
+        return self.exec_()
 
 
 class Progress(Qtw.QProgressDialog):
