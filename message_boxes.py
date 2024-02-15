@@ -68,6 +68,8 @@ class Progress(Qtw.QDialog):
         self.layout.addWidget(self.message)
 
         self.bar = Qtw.QProgressBar()
+        self.bar.setTextVisible(True)
+        self.bar.setAlignment(Qtc.Qt.AlignCenter)
         self.layout.addWidget(self.bar)
 
         self.button = Qtw.QPushButton("Cancel")
@@ -82,6 +84,7 @@ class Progress(Qtw.QDialog):
         relevant = self.calc.relevant
         iter = len(relevant)
         self.bar.setMaximum(iter)
+        self.bar.setFormat('Finding Duplicates %v / ' + str(iter))
         self.calc = External(iter)
         self.calc.countChanged.connect(self.onCountChanged)
         self.calc.start()
