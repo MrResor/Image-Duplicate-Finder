@@ -96,11 +96,11 @@ class External(Qtc.QThread):
     """
     countChanged = Qtc.pyqtSignal(int)
 
-    def __init__(self, max):
+    def __init__(self, max) -> None:
         super().__init__()
         self.max = max
 
-    def run(self):
+    def run(self) -> None:
         count = 0
         while count < self.max:
             count +=1
