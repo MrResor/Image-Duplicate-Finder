@@ -1,7 +1,7 @@
 from __init__ import sqlite3
 from os import path, remove
 from decorators import check
-from message_boxes import error_message
+from message_boxes import Error_message
 
 
 class dbcon:
@@ -10,7 +10,8 @@ class dbcon:
 
     def __init__(self, name, mode) -> None:
         if name == '':
-            error_message('Canceled. Closing program.')
+            msg = Error_message('Canceled. Closing program.')
+            msg.run()
             quit(2)
         if mode:
             self.connect(name)
