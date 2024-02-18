@@ -8,10 +8,10 @@ class Get_paths(Qtc.QThread):
     """
     direc_done = Qtc.pyqtSignal(str)
     search_done = Qtc.pyqtSignal()
-    relevant = []
 
     def __init__(self, _paths, _deep_search) -> None:
         super().__init__()
+        self.relevant = []
         self.paths = _paths
         self.deep_search = _deep_search
 
