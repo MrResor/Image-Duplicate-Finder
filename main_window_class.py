@@ -24,7 +24,7 @@ class MainWindow(Qtw.QMainWindow):
         """ Constructor, changes window name and calls other setup functions.
         """
         super().__init__(parent)
-        self.setWindowTitle('Image Duplicate finder.')
+        self.setWindowTitle('Image Duplicate finder')
         self.add_menu()
         # mode = work_mode()
         # choice = mode.run()
