@@ -1,43 +1,113 @@
-from __init__ import Qtw
+from __init__ import Qtw, Qtg, Qtc
+from auxiliary import Get_paths
+import time
 
+class ChkBxFileDialog(Qtw.QFileDialog):
+    def __init__(self, chkBxTitle="", filter="") -> None:
+        super().__init__(filter=filter)
+        self.setOption(Qtw.QFileDialog.DontUseNativeDialog)
+        self.setFileMode(Qtw.QFileDialog.FileMode.Directory)
+        
+        # self.selectNameFilter("*.txt")
+        self.chkBx = Qtw.QCheckBox(chkBxTitle)
+        self.layout().addWidget(self.chkBx)
+        lbl = Qtw.QLabel("Search directories")
+        self.layout().addWidget(lbl)
 
-def work_mode() -> int:
-    msg = Qtw.QMessageBox()
-    msg.setWindowTitle("Select working mode.")
-    msg.setIcon(Qtw.QMessageBox.Question)
-    msg.setText(
-        "Would you like to load existing database created by this program?"
-    )
-    msg.setStandardButtons(Qtw.QMessageBox.Yes | Qtw.QMessageBox.No)
-    x = msg.exec_()
-    return x
+    def run(self):
+        return self.exec_()
 
-
-def error_message(text) -> None:
-    msg = Qtw.QMessageBox()
-    msg.setWindowTitle("Error")
-    msg.setIcon(Qtw.QMessageBox.Critical)
-    msg.setText(text)
-    msg.setStandardButtons(Qtw.QMessageBox.Ok)
-    msg.exec_()
-
-
-class Progress(Qtw.QProgressDialog):
-
-    msg_list = {0: 'Preparing.', 1: 'Finding all photos.',
-                2: 'Comparing photos.', 3: 'Setting up UI.'}
-
-    def __init__(self, prog_sig) -> None:
+class Work_mode(Qtw.QMessageBox):
+    def __init__(self) -> None:
         super().__init__()
-        self.sig = prog_sig[0]
-        self.setWindowTitle("Working...")
-        self.setFixedSize(300, 400)
-        # self.setIcon(Qtw.QProgressBox.Information)
-        self.set_text(0)
-        self.sig.connect(self.set_text)
-        # self.setStandardButtons(Qtw.QProgressBox.NoButton)
-        self.show()
+        self.setWindowTitle("Select working mode.")
+        self.setIcon(Qtw.QMessageBox.Question)
+        self.setText(
+            "Would you like to load existing database created by this program?"
+        )
+        self.setStandardButtons(Qtw.QMessageBox.Yes | Qtw.QMessageBox.No)
+    
+    def run(self) -> int:
+        return self.exec_()
 
-    def set_text(self, code) -> None:
-        self.setLabelText(self.msg_list[code])
-        self.update()
+
+class Error_message(Qtw.QMessageBox):
+    def __init__(self, text: str) -> None:
+        super().__init__()
+        self.setWindowTitle("Error")
+        self.setIcon(Qtw.QMessageBox.Critical)
+        self.setText(text)
+        self.setStandardButtons(Qtw.QMessageBox.Ok)
+    
+    def run(self) -> int:
+        return self.exec_()
+
+
+class Progress(Qtw.QDialog):
+
+    def __init__(self, paths, deep_search) -> None:
+        super().__init__()
+        self.setWindowTitle("Working...")
+        self.setFixedSize(400, 200)
+
+        self.ui()
+
+        self.calc = Get_paths(paths, deep_search)
+        self.calc.direc_done.connect(self.on_direc_done)
+        self.calc.search_done.connect(self.on_search_done)
+        self.calc.start()
+
+        self.exec_()
+
+    def ui(self) -> None:
+        self.layout = Qtw.QVBoxLayout()
+
+        self.message = Qtw.QTextEdit()
+        self.message.setReadOnly(True)
+        self.message.append("Searching for images...")
+        self.layout.addWidget(self.message)
+
+        self.bar = Qtw.QProgressBar()
+        self.bar.setTextVisible(True)
+        self.bar.setAlignment(Qtc.Qt.AlignCenter)
+        self.layout.addWidget(self.bar)
+
+        self.button = Qtw.QPushButton("Cancel")
+        self.layout.addWidget(self.button)
+
+        self.setLayout(self.layout)
+
+    def on_direc_done(self, value) -> None:
+        self.message.append(str(value) + " Done!")
+
+    def on_search_done(self) -> None:
+        relevant = self.calc.relevant
+        iter = len(relevant)
+        self.bar.setMaximum(iter)
+        self.bar.setFormat('Finding Duplicates %v / ' + str(iter))
+        self.calc = External(iter)
+        self.calc.countChanged.connect(self.onCountChanged)
+        self.calc.start()
+
+    def onCountChanged(self, value) -> None:
+        self.bar.setValue(value)
+
+
+class External(Qtc.QThread):
+    """
+    Runs a counter thread.
+    """
+    countChanged = Qtc.pyqtSignal(int)
+
+    def __init__(self, max) -> None:
+        super().__init__()
+        self.max = max
+
+    def run(self) -> None:
+        count = 0
+        while count < self.max:
+            count +=1
+            time.sleep(0.1)
+            self.countChanged.emit(count)
+
+    
