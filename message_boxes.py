@@ -2,12 +2,13 @@ from __init__ import Qtw, Qtg, Qtc
 from auxiliary import Get_paths, Filter_images
 import time
 
+
 class ChkBxFileDialog(Qtw.QFileDialog):
     def __init__(self, chkBxTitle="", filter="") -> None:
         super().__init__(filter=filter)
         self.setOption(Qtw.QFileDialog.DontUseNativeDialog)
         self.setFileMode(Qtw.QFileDialog.FileMode.Directory)
-        
+
         # self.selectNameFilter("*.txt")
         self.chkBx = Qtw.QCheckBox(chkBxTitle)
         self.chkBx.setText("Search directories")
@@ -15,6 +16,7 @@ class ChkBxFileDialog(Qtw.QFileDialog):
 
     def run(self):
         return self.exec_()
+
 
 class Work_mode(Qtw.QMessageBox):
     def __init__(self) -> None:
@@ -25,7 +27,7 @@ class Work_mode(Qtw.QMessageBox):
             "Would you like to load existing database created by this program?"
         )
         self.setStandardButtons(Qtw.QMessageBox.Yes | Qtw.QMessageBox.No)
-    
+
     def run(self) -> int:
         return self.exec_()
 
@@ -37,7 +39,7 @@ class Error_message(Qtw.QMessageBox):
         self.setIcon(Qtw.QMessageBox.Critical)
         self.setText(text)
         self.setStandardButtons(Qtw.QMessageBox.Ok)
-    
+
     def run(self) -> int:
         return self.exec_()
 

@@ -19,12 +19,11 @@ class Get_paths(Qtc.QThread):
         ext = ('.png', '.jpg', '.jpeg', '.raw', '.tiff', '.JPG')
         for root, _, files in walk(self.paths):
             self.relevant += [root + '/' * (root != './') +
-                         x for x in files if x.endswith(ext)]
+                              x for x in files if x.endswith(ext)]
             self.direc_done.emit(root)
             if not self.deep_search:
                 break
         self.search_done.emit()
-
 
 class Filter_images(Qtc.QThread):
     """
