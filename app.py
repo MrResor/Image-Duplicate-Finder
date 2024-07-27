@@ -1,4 +1,4 @@
-from main_window_class import MainWindow
+from main_window_class import Main_window
 from __init__ import Qtw, sys
 
 
@@ -16,6 +16,6 @@ class Application:
             takes argv (sys.argv) as parameters, sets up and runs Qt app.
         """
         self.app = Qtw.QApplication(argv)
-        self.win = MainWindow()
+        self.win = Main_window()
         self.win.show()
         sys.exit(self.app.exec_())

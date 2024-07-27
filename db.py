@@ -25,10 +25,9 @@ class dbcon:
         self._cur.execute('SELECT * FROM verif')
 
     def create(self, name) -> None:
-        p = name + '/' * (name != './') + 'local.db'
-        if path.exists(p):
-            remove(p)
-        self._con = sqlite3.connect(p, check_same_thread=False)
+        if path.exists(name):
+            remove(name)
+        self._con = sqlite3.connect(name, check_same_thread=False)
         self._cur = self._con.cursor()
         self._cur.execute(
             'CREATE TABLE images(id, path, width, height, colour, format)')
@@ -65,3 +64,6 @@ class dbcon:
                  'HAVING COUNT(*) > 1')
         res = self._cur.execute(query)
         return res.fetchall()
+
+    def close(self) -> None:
+        self._con.close()
