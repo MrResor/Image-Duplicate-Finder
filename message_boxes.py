@@ -1,5 +1,5 @@
 from __init__ import Qtw, Qtg, Qtc
-from auxiliary import Get_paths
+from auxiliary import Get_paths, Filter_images
 import time
 
 class ChkBxFileDialog(Qtw.QFileDialog):
@@ -10,9 +10,8 @@ class ChkBxFileDialog(Qtw.QFileDialog):
         
         # self.selectNameFilter("*.txt")
         self.chkBx = Qtw.QCheckBox(chkBxTitle)
+        self.chkBx.setText("Search directories")
         self.layout().addWidget(self.chkBx)
-        lbl = Qtw.QLabel("Search directories")
-        self.layout().addWidget(lbl)
 
     def run(self):
         return self.exec_()
@@ -42,13 +41,14 @@ class Error_message(Qtw.QMessageBox):
     def run(self) -> int:
         return self.exec_()
 
-
 class Progress(Qtw.QDialog):
 
-    def __init__(self, paths, deep_search) -> None:
+    def __init__(self, paths, deep_search, db) -> None:
         super().__init__()
         self.setWindowTitle("Working...")
+        self.setWindowFlag(Qtc.Qt.WindowCloseButtonHint, False)
         self.setFixedSize(400, 200)
+        self.db = db
 
         self.ui()
 
@@ -61,6 +61,7 @@ class Progress(Qtw.QDialog):
 
     def ui(self) -> None:
         self.layout = Qtw.QVBoxLayout()
+        self.layout.setAlignment(Qtc.Qt.AlignCenter)
 
         self.message = Qtw.QTextEdit()
         self.message.setReadOnly(True)
@@ -69,45 +70,43 @@ class Progress(Qtw.QDialog):
 
         self.bar = Qtw.QProgressBar()
         self.bar.setTextVisible(True)
+        style = 'QProgressBar { color: black; border: 0.5px solid #c0bcbc; \
+            background: #e8e4e4 }'
+        self.bar.setStyleSheet(style)
         self.bar.setAlignment(Qtc.Qt.AlignCenter)
         self.layout.addWidget(self.bar)
 
         self.button = Qtw.QPushButton("Cancel")
-        self.layout.addWidget(self.button)
+        self.button.setFixedWidth(100)
+        self.layout.addWidget(self.button, alignment=Qtc.Qt.AlignCenter)
+        self.button.clicked.connect(self.cancel)
 
         self.setLayout(self.layout)
 
     def on_direc_done(self, value) -> None:
-        self.message.append(str(value) + " Done!")
+        self.message.append(str(value) + " - Done!")
 
     def on_search_done(self) -> None:
         relevant = self.calc.relevant
         iter = len(relevant)
-        self.bar.setMaximum(iter)
-        self.bar.setFormat('Finding Duplicates %v / ' + str(iter))
-        self.calc = External(iter)
-        self.calc.countChanged.connect(self.onCountChanged)
-        self.calc.start()
+        if iter == 0:
+            # TODO this is temporary solution, instead alert should be here
+            self.bar.setFormat('No images found!')
+            self.bar.setMaximum(1)
+            self.bar.setValue(1)
+        else:
+            self.bar.setMaximum(iter)
+            self.bar.setFormat('Finding Duplicates %v / ' + str(iter))
+            self.calc = Filter_images(relevant, self.db)
+            self.calc.count_changed.connect(self.on_count_changed)
+            self.calc.filtering_done.connect(self.finished)
+            self.calc.start()
 
-    def onCountChanged(self, value) -> None:
+    def on_count_changed(self, value) -> None:
         self.bar.setValue(value)
-
-
-class External(Qtc.QThread):
-    """
-    Runs a counter thread.
-    """
-    countChanged = Qtc.pyqtSignal(int)
-
-    def __init__(self, max) -> None:
-        super().__init__()
-        self.max = max
-
-    def run(self) -> None:
-        count = 0
-        while count < self.max:
-            count +=1
-            time.sleep(0.1)
-            self.countChanged.emit(count)
-
     
+    def cancel(self) -> None:
+        self.reject()
+
+    def finished(self) -> None:
+        self.done(0)
