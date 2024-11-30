@@ -32,8 +32,7 @@ class Progress(Qtw.QDialog):
 
         self.bar = Qtw.QProgressBar()
         self.bar.setTextVisible(True)
-        style = 'QProgressBar { color: black; border: 0.5px solid #c0bcbc; \
-            background: #e8e4e4 }'
+        style = 'QProgressBar { color: black; border: 0.5px solid #c0bcbc; background: #e8e4e4 }'
         self.bar.setStyleSheet(style)
         self.bar.setAlignment(Qtc.Qt.AlignCenter)
         self.layout.addWidget(self.bar)
