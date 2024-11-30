@@ -1,16 +1,16 @@
 from __init__ import sqlite3
 from os import path, remove
 from decorators import check
-from message_boxes import Error_message
+from ErrorMessage import ErrorMessage
 
 
-class dbcon:
+class Database:
     """Class for holding database connection
     """
 
     def __init__(self, name, mode) -> None:
         if name == '':
-            msg = Error_message('Canceled. Closing program.')
+            msg = ErrorMessage('Canceled. Closing program.')
             msg.run()
             quit(2)
         if mode:

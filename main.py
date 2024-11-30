@@ -1,4 +1,4 @@
-from app import Application
+from Application import Application
 from __init__ import sys
 
 if __name__ == '__main__':

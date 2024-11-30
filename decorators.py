@@ -1,5 +1,5 @@
 from __init__ import sqlite3
-from message_boxes import Error_message
+from ErrorMessage import ErrorMessage
 
 
 def check(func):
@@ -10,7 +10,7 @@ def check(func):
         try:
             func(self, name)
         except sqlite3.OperationalError:
-            msg = Error_message('Provided database was not created by this program.')
+            msg = ErrorMessage('Provided database was not created by this program.')
             msg.run()
             quit(1)
 

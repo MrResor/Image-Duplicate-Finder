@@ -1,47 +1,7 @@
-from __init__ import Qtw, Qtg, Qtc
-from auxiliary import Get_paths, Filter_images
-import time
+from __init__ import Qtw, Qtc
+from GetPaths import GetPaths
+from FilterImages import FilterImages
 
-
-class ChkBxFileDialog(Qtw.QFileDialog):
-    def __init__(self, chkBxTitle="", filter="") -> None:
-        super().__init__(filter=filter)
-        self.setOption(Qtw.QFileDialog.DontUseNativeDialog)
-        self.setFileMode(Qtw.QFileDialog.FileMode.Directory)
-
-        # self.selectNameFilter("*.txt")
-        self.chkBx = Qtw.QCheckBox(chkBxTitle)
-        self.chkBx.setText("Search directories")
-        self.layout().addWidget(self.chkBx)
-
-    def run(self):
-        return self.exec_()
-
-
-class Work_mode(Qtw.QMessageBox):
-    def __init__(self) -> None:
-        super().__init__()
-        self.setWindowTitle("Select working mode.")
-        self.setIcon(Qtw.QMessageBox.Question)
-        self.setText(
-            "Would you like to load existing database created by this program?"
-        )
-        self.setStandardButtons(Qtw.QMessageBox.Yes | Qtw.QMessageBox.No)
-
-    def run(self) -> int:
-        return self.exec_()
-
-
-class Error_message(Qtw.QMessageBox):
-    def __init__(self, text: str) -> None:
-        super().__init__()
-        self.setWindowTitle("Error")
-        self.setIcon(Qtw.QMessageBox.Critical)
-        self.setText(text)
-        self.setStandardButtons(Qtw.QMessageBox.Ok)
-
-    def run(self) -> int:
-        return self.exec_()
 
 class Progress(Qtw.QDialog):
 
@@ -54,7 +14,7 @@ class Progress(Qtw.QDialog):
 
         self.ui()
 
-        self.calc = Get_paths(paths, deep_search)
+        self.calc = GetPaths(paths, deep_search)
         self.calc.direc_done.connect(self.on_direc_done)
         self.calc.search_done.connect(self.on_search_done)
         self.calc.start()
@@ -99,14 +59,14 @@ class Progress(Qtw.QDialog):
         else:
             self.bar.setMaximum(iter)
             self.bar.setFormat('Finding Duplicates %v / ' + str(iter))
-            self.calc = Filter_images(relevant, self.db)
+            self.calc = FilterImages(relevant, self.db)
             self.calc.count_changed.connect(self.on_count_changed)
             self.calc.filtering_done.connect(self.finished)
             self.calc.start()
 
     def on_count_changed(self, value) -> None:
         self.bar.setValue(value)
-    
+
     def cancel(self) -> None:
         self.reject()
 
