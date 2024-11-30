@@ -12,7 +12,7 @@ class MainWindow(Qtw.QMainWindow):
         Methods:\n
     """
     paths = []
-    db_state_changed = Qtc.pyqtSignal(bool)  # potem do przycisku xd
+    db_state_changed = Qtc.pyqtSignal(bool)
     path_to_db = ""
     path_to_search = ""
     deep_search = False
@@ -21,7 +21,7 @@ class MainWindow(Qtw.QMainWindow):
         """ Constructor, changes window name and calls other setup functions.
         """
         super().__init__(parent)
-        self.setWindowTitle('Image Duplicate finder')
+        self.setWindowTitle('Image Duplicate Finder')
         self.add_menu()
         self.set_ui()
         self.showMaximized()
@@ -39,13 +39,12 @@ class MainWindow(Qtw.QMainWindow):
         action_open = Qtw.QAction('Open', self)
         action_open.setToolTip('Open existing duplicate database.')
         action_open.setShortcut('Ctrl+O')
-        action_open.triggered.connect(self.get_database_path)
+        action_open.triggered.connect(self.open_database)
         file_menu.addAction(action_open)
 
-        # TODO dodać blokowanie jak nie ma otwartej bazy
         self.action_close = Qtw.QAction('Close', self)
         self.action_close.setToolTip('Close opened duplicate database.')
-        self.action_close.triggered.connect(self.close_db)  # zamykanie bazy
+        self.action_close.triggered.connect(self.close_db)
         self.db_state_changed.connect(self.on_db_state_change)
         self.db_state_changed.emit(False)
 
@@ -55,8 +54,7 @@ class MainWindow(Qtw.QMainWindow):
 
     def create_db(self) -> None:
         self.get_working_path()
-        db_path = self.path_to_search + "/" + \
-            self.path_to_search.split("/")[-1] + ".sqlite3db"
+        db_path = self.path_to_search + "/" + self.path_to_search.split("/")[-1] + ".sqlite3db"
         self.db = Database(db_path, False)
         progress = Progress(self.path_to_search, self.deep_search, self.db)
         self.db_state_changed.emit(True)
@@ -67,10 +65,11 @@ class MainWindow(Qtw.QMainWindow):
         self.deep_search = dialog.chkBx.isChecked()
         self.path_to_search = dialog.selectedUrls()[0].toLocalFile()
 
-    def get_database_path(self) -> None:
+    def open_database(self) -> None:
         file = Qtw.QFileDialog.getOpenFileName(
             self, 'Select Database file.', '', 'Database files (*.sqlite3db)')[0]
-        return file
+        self.db = Database(file, True)
+        self.db_state_changed.emit(True)
 
     def set_ui(self) -> None:
         # TODO CRY
